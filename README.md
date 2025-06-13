@@ -2,6 +2,10 @@
 
 <div align="center">
 
+> **🚀 Built by the [AugmentCode.com](https://www.augmentcode.com) Community using AugmentCode Tool**
+>
+> *Empowering developers to build better software faster through AI-assisted development*
+
 ![KwikShot Logo](https://img.shields.io/badge/KwikShot-Screen%20Recorder-blue?style=for-the-badge&logo=video&logoColor=white)
 
 **Professional Screen Recorder & Video Editor**
