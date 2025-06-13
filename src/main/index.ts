@@ -1,6 +1,8 @@
-import { app, BrowserWindow, ipcMain, desktopCapturer, systemPreferences, session } from 'electron';
+import { app, BrowserWindow, ipcMain, desktopCapturer, systemPreferences, session, dialog, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as isDev from 'electron-is-dev';
 
 class KwikShotApp {
@@ -154,6 +156,88 @@ class KwikShotApp {
         this.mainWindow.unmaximize();
       } else {
         this.mainWindow?.maximize();
+      }
+    });
+
+    // Handle directory selection
+    ipcMain.handle('select-directory', async () => {
+      try {
+        const result = await dialog.showOpenDialog(this.mainWindow!, {
+          properties: ['openDirectory', 'createDirectory'],
+          title: 'Select Folder'
+        });
+
+        if (!result.canceled && result.filePaths.length > 0) {
+          return result.filePaths[0];
+        }
+        return null;
+      } catch (error) {
+        console.error('Error selecting directory:', error);
+        return null;
+      }
+    });
+
+    // Handle file saving
+    ipcMain.handle('save-file', async (event, data: any, filename: string) => {
+      try {
+        // This would implement actual file saving logic
+        console.log('Saving file:', filename);
+        return true;
+      } catch (error) {
+        console.error('Error saving file:', error);
+        return false;
+      }
+    });
+
+    // Handle settings loading
+    ipcMain.handle('get-settings', async () => {
+      try {
+        const userDataPath = app.getPath('userData');
+        const settingsPath = path.join(userDataPath, 'settings.json');
+
+        if (fs.existsSync(settingsPath)) {
+          const settingsData = fs.readFileSync(settingsPath, 'utf8');
+          return JSON.parse(settingsData);
+        }
+        return null;
+      } catch (error) {
+        console.error('Error loading settings:', error);
+        return null;
+      }
+    });
+
+    // Handle settings saving
+    ipcMain.handle('save-settings', async (event, settings: any) => {
+      try {
+        const userDataPath = app.getPath('userData');
+        const settingsPath = path.join(userDataPath, 'settings.json');
+
+        // Ensure the directory exists
+        if (!fs.existsSync(userDataPath)) {
+          fs.mkdirSync(userDataPath, { recursive: true });
+        }
+
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+        return true;
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        return false;
+      }
+    });
+
+    // Handle opening folders
+    ipcMain.handle('open-folder', async (event, folderPath: string) => {
+      try {
+        // Expand home directory if needed
+        const expandedPath = folderPath.startsWith('~')
+          ? path.join(os.homedir(), folderPath.slice(1))
+          : folderPath;
+
+        await shell.openPath(expandedPath);
+        return true;
+      } catch (error) {
+        console.error('Error opening folder:', error);
+        return false;
       }
     });
   }

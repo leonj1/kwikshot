@@ -14,7 +14,8 @@ export interface ElectronAPI {
   // File operations
   selectDirectory: () => Promise<string | null>;
   saveFile: (data: any, filename: string) => Promise<boolean>;
-  
+  openFolder: (path: string) => Promise<boolean>;
+
   // Settings
   getSettings: () => Promise<any>;
   saveSettings: (settings: any) => Promise<boolean>;
@@ -34,7 +35,8 @@ const electronAPI: ElectronAPI = {
   // File operations
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
   saveFile: (data: any, filename: string) => ipcRenderer.invoke('save-file', data, filename),
-  
+  openFolder: (path: string) => ipcRenderer.invoke('open-folder', path),
+
   // Settings
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveSettings: (settings: any) => ipcRenderer.invoke('save-settings', settings),
