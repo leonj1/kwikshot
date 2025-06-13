@@ -262,7 +262,6 @@ class KwikShotApp {
         return false;
       }
     });
-
     // Streaming IPC handlers
     ipcMain.handle('start-rtmp-stream', async (_, config, settings) => {
       try {
