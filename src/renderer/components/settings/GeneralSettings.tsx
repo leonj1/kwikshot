@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Monitor, 
-  Bell, 
-  Minimize2, 
-  Download, 
-  Globe, 
+import {
+  Monitor,
+  Bell,
+  Minimize2,
+  Download,
+  Globe,
   FileVideo,
   Save,
   Clock,
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { GeneralSettings as GeneralSettingsType } from '../../../shared/types';
+import { useAutoSaveToast } from '../../contexts/ToastContext';
 
 interface SettingItemProps {
   icon: React.ComponentType<{ size?: number; className?: string }>;
@@ -53,29 +54,85 @@ const SettingItem: React.FC<SettingItemProps> = ({
 };
 
 export const GeneralSettings: React.FC = () => {
-  const { settings, updateGeneral } = useSettingsStore();
+  const { settings, updateGeneral, saveSettings } = useSettingsStore();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastSavedSettings, setLastSavedSettings] = useState<string>('');
+  const autoSaveToast = useAutoSaveToast();
 
-  const handleToggle = (key: keyof GeneralSettingsType) => {
+  // Auto-save settings when general settings actually change (but not on initial load)
+  useEffect(() => {
+    // Skip auto-save on initial load
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      setLastSavedSettings(JSON.stringify(settings.general));
+      return;
+    }
+
+    // Check if settings actually changed by comparing serialized values
+    const currentSettingsString = JSON.stringify(settings.general);
+    if (currentSettingsString === lastSavedSettings) {
+      return; // No actual change, skip auto-save
+    }
+
+    const autoSave = async () => {
+      // Only show toast when actually calling saveSettings
+      autoSaveToast.showSaving();
+      try {
+        console.log('Auto-saving general settings...', settings.general);
+        const success = await saveSettings();
+        if (success) {
+          setLastSavedSettings(currentSettingsString);
+          autoSaveToast.showSuccess();
+        } else {
+          autoSaveToast.showError();
+        }
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+        autoSaveToast.showError();
+      }
+    };
+
+    // Debounce auto-save to avoid excessive saves (no toast during debounce)
+    const timeoutId = setTimeout(autoSave, 500);
+    return () => clearTimeout(timeoutId);
+  }, [settings.general, saveSettings, isInitialLoad, autoSaveToast, lastSavedSettings]);
+
+  const handleToggle = async (key: keyof GeneralSettingsType) => {
     updateGeneral({ [key]: !settings.general[key] });
   };
 
-  const handleSelectChange = (key: keyof GeneralSettingsType, value: string | number) => {
+  const handleSelectChange = async (key: keyof GeneralSettingsType, value: string | number) => {
     updateGeneral({ [key]: value });
   };
 
-  const resetToDefaults = () => {
-    if (window.confirm('Reset all general settings to defaults?')) {
-      const defaultGeneral: GeneralSettingsType = {
-        autoSave: true,
-        autoSaveInterval: 5,
-        showNotifications: true,
-        minimizeToTray: false,
-        startMinimized: false,
-        checkForUpdates: true,
-        language: 'en',
-        defaultFormat: 'mp4',
-      };
-      updateGeneral(defaultGeneral);
+  const resetToDefaults = async () => {
+    if (window.confirm('Reset all general settings to defaults? This will overwrite all your preferences.')) {
+      autoSaveToast.showSaving();
+      try {
+        const defaultGeneral: GeneralSettingsType = {
+          autoSave: true,
+          autoSaveInterval: 5,
+          showNotifications: true,
+          minimizeToTray: false,
+          startMinimized: false,
+          checkForUpdates: true,
+          language: 'en',
+          defaultFormat: 'mp4',
+        };
+
+        updateGeneral(defaultGeneral);
+
+        // Save to persistent storage
+        const saveSuccess = await saveSettings();
+        if (saveSuccess) {
+          autoSaveToast.showSuccess();
+        } else {
+          autoSaveToast.showError();
+        }
+      } catch (error) {
+        console.error('Failed to reset general settings:', error);
+        autoSaveToast.showError();
+      }
     }
   };
 
@@ -91,7 +148,7 @@ export const GeneralSettings: React.FC = () => {
               <p className="text-gray-400">Configure app behavior and preferences</p>
             </div>
           </div>
-          
+
           <button
             onClick={resetToDefaults}
             className="btn-secondary flex items-center space-x-2"

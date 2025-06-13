@@ -102,6 +102,10 @@ export interface FolderSettings {
   tracks: string;
   exports: string;
   screenshots: string;
+  // Folder behavior options
+  createFoldersAutomatically: boolean;
+  openFolderAfterSaving: boolean;
+  organizeByDate: boolean;
 }
 
 // General settings

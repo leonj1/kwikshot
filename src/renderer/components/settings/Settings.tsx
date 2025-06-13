@@ -21,17 +21,16 @@ interface SettingsProps {
 
 type SettingsTab = 'general' | 'shortcuts' | 'folders';
 
-export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
+export const Settings: React.FC<SettingsProps> = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
-  
-  const { 
-    settings, 
-    isLoading, 
-    hasUnsavedChanges, 
-    loadSettings, 
-    saveSettings, 
-    resetToDefaults 
+
+  const {
+    isLoading,
+    hasUnsavedChanges,
+    loadSettings,
+    saveSettings,
+    resetToDefaults
   } = useSettingsStore();
 
   useEffect(() => {
@@ -110,7 +109,7 @@ export const Settings: React.FC<SettingsProps> = ({ onClose }) => {
       case 'error':
         return 'Error';
       default:
-        return 'Save Changes';
+        return hasUnsavedChanges ? 'Save Now' : 'All Saved';
     }
   };
 
