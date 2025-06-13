@@ -1,0 +1,36 @@
+# Development Dockerfile for KwikShot
+FROM node:18-alpine
+
+# Install system dependencies for Electron
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    freetype-dev \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont \
+    xvfb
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Expose port for webpack dev server
+EXPOSE 3000
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV ELECTRON_DISABLE_SECURITY_WARNINGS=true
+ENV DISPLAY=:99
+
+# Start Xvfb and run development server
+CMD ["sh", "-c", "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & npm run dev:renderer"]

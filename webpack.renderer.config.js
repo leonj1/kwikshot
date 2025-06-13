@@ -64,7 +64,12 @@ module.exports = (env, argv) => {
     ],
     devServer: {
       port: 3000,
+      host: '0.0.0.0', // Allow external connections (important for Docker)
       hot: true,
+      allowedHosts: 'all', // Allow connections from any host
+      client: {
+        webSocketURL: 'auto://0.0.0.0:0/ws', // Auto-detect WebSocket URL
+      },
       static: {
         directory: path.join(__dirname, 'dist/renderer'),
       },
