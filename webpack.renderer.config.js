@@ -63,11 +63,13 @@ module.exports = (env, argv) => {
       }),
     ],
     devServer: {
-      port: 3000,
+      port: process.env.DEV_PORT || process.env.PORT || 3000,
+      host: process.env.DEV_HOST || 'localhost',
       hot: true,
       static: {
         directory: path.join(__dirname, 'dist/renderer'),
       },
+      allowedHosts: 'all',
     },
   };
 };

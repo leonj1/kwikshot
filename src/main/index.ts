@@ -57,7 +57,9 @@ class KwikShotApp {
 
     // Load the app
     if (isDev) {
-      this.mainWindow.loadURL('http://localhost:3000');
+      const devPort = process.env.DEV_PORT || process.env.PORT || '3000';
+      const devHost = process.env.DEV_HOST || 'localhost';
+      this.mainWindow.loadURL(`http://${devHost}:${devPort}`);
       this.mainWindow.webContents.openDevTools();
     } else {
       this.mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));

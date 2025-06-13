@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  kwikshot-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        - DEV_PORT=${DEV_PORT:-3000}
+    container_name: kwikshot-dev
+    ports:
+      - "${DEV_PORT:-3000}:${DEV_PORT:-3000}"
+    environment:
+      - NODE_ENV=development
+      - DEV_PORT=${DEV_PORT:-3000}
+      - DEV_HOST=0.0.0.0
+    volumes:
+      # Mount source code for hot reloading
+      - ./src:/app/src:ro
+      - ./package.json:/app/package.json:ro
+      - ./package-lock.json:/app/package-lock.json:ro
+      - ./webpack.renderer.config.js:/app/webpack.renderer.config.js:ro
+      - ./tsconfig.json:/app/tsconfig.json:ro
+      - ./tsconfig.main.json:/app/tsconfig.main.json:ro
+      - ./tailwind.config.js:/app/tailwind.config.js:ro
+      - ./postcss.config.js:/app/postcss.config.js:ro
+      - ./babel.config.js:/app/babel.config.js:ro
+      # Exclude node_modules to use container's version
+      - /app/node_modules
+    networks:
+      - kwikshot-network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  kwikshot-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: kwikshot-prod
+    ports:
+      - "${PROD_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - kwikshot-network
+    restart: unless-stopped
+    profiles:
+      - production
+
+networks:
+  kwikshot-network:
+    driver: bridge
+
+# Example usage:
+# Development (default port 3000):
+#   docker-compose up kwikshot-dev
+#
+# Development with custom port:
+#   DEV_PORT=8080 docker-compose up kwikshot-dev
+#
+# Production:
+#   docker-compose --profile production up kwikshot-prod
+#
+# Custom production port:
+#   PROD_PORT=8080 docker-compose --profile production up kwikshot-prod
