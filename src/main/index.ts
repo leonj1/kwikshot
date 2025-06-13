@@ -49,7 +49,6 @@ class KwikShotApp {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        enableRemoteModule: false,
         allowRunningInsecureContent: false,
         preload: path.join(__dirname, '../preload/index.js'),
       },
