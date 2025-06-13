@@ -3,13 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' ws://localhost:*;">
     <title>KwikShot - Screen Recorder & Video Editor</title>
     <script>
         // Fix for global variable in Electron renderer
         if (typeof global === 'undefined') {
             var global = globalThis;
         }
+
+        // Dynamic CSP for development vs production
+        const isDevelopment = process.env.NODE_ENV === 'development';
+        let connectSrc = "'self' ws://localhost:*";
+
+        if (isDevelopment) {
+            // Allow common Docker and development IPs
+            connectSrc += " ws://host.docker.internal:* ws://10.1.1.74:* ws://172.17.0.1:* ws://192.168.*:*";
+        }
+
+        const csp = `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src ${connectSrc};`;
+
+        const meta = document.createElement('meta');
+        meta.httpEquiv = 'Content-Security-Policy';
+        meta.content = csp;
+        document.head.appendChild(meta);
     </script>
     <style>
         body {
