@@ -103,7 +103,7 @@ chmod +x kwikshot.AppImage
 ### Build from Source
 
 **Prerequisites**
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Git
 
@@ -133,12 +133,84 @@ npm run dist:mac    # macOS
 npm run dist:linux  # Linux
 ```
 
+### 🐳 Docker Development (Recommended)
+
+**Prerequisites**
+- Docker
+- Make (included on macOS/Linux, install via chocolatey/scoop on Windows)
+
+**Quick Start with Docker**
+```bash
+# Clone the repository
+git clone https://github.com/your-username/kwikshot.git
+cd kwikshot
+
+# Build the Docker image
+make build
+
+# Start the development server (default port 3000)
+make start
+
+# Or start on a custom port
+make start HOST_PORT=4545
+# Alternative syntax: HOST_PORT=4545 make start
+```
+
+**Docker Commands**
+```bash
+# Build the Docker image
+make build
+
+# Start the container
+make start
+
+# Start with custom host port
+make start HOST_PORT=8080
+HOST_PORT=4545 make start
+
+# Stop the container
+make stop
+
+# Restart the container
+make restart
+
+# View container logs
+make logs
+
+# Check container status
+make status
+
+# Run tests
+make test
+
+# Clean up (remove container and image)
+make clean
+
+# Show help with all available commands
+make help
+```
+
+**Port Configuration**
+- **Default**: Application runs on http://localhost:3000
+- **Custom Port**: Use `HOST_PORT=XXXX make start` to run on a different port
+- **Container Port**: The app always runs on port 3000 inside the container
+- **Host Port**: The port you access from your browser (configurable)
+
 ---
 
 ## 📖 Usage
 
 ### Quick Start
 
+**For Development (Docker)**
+```bash
+git clone https://github.com/your-username/kwikshot.git
+cd kwikshot
+make build && make start
+# Open http://localhost:3000 in your browser
+```
+
+**For End Users**
 1. **Launch KwikShot** from your applications menu
 2. **Select Recording Sources** - Choose your screen, webcam, and microphone
 3. **Configure Settings** - Set resolution, frame rate, and quality
@@ -194,12 +266,25 @@ We welcome contributions from the community! Please read our [Contributing Guide
 
 ### Development Setup
 
+**Option 1: Docker (Recommended)**
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and test thoroughly
-4. Commit your changes: `git commit -m 'Add amazing feature'`
-5. Push to the branch: `git push origin feature/amazing-feature`
-6. Open a Pull Request
+2. Clone your fork: `git clone https://github.com/your-username/kwikshot.git`
+3. Create a feature branch: `git checkout -b feature/amazing-feature`
+4. Start development environment: `make build && make start`
+5. Make your changes and test: `make test`
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Open a Pull Request
+
+**Option 2: Local Development**
+1. Fork the repository
+2. Clone your fork and install dependencies: `npm install`
+3. Create a feature branch: `git checkout -b feature/amazing-feature`
+4. Start development server: `npm run dev`
+5. Make your changes and test thoroughly
+6. Commit your changes: `git commit -m 'Add amazing feature'`
+7. Push to the branch: `git push origin feature/amazing-feature`
+8. Open a Pull Request
 
 ---
 
@@ -276,6 +361,57 @@ AugmentCode empowers developers to build better software faster through AI-assis
 - **MOV**: Ideal for professional editing workflows
 - **WebM**: Perfect for web deployment
 - **AVI**: Legacy format support
+
+---
+
+## 🔧 Troubleshooting
+
+### Docker Issues
+
+**Port Already in Use**
+```bash
+# Error: Bind for 0.0.0.0:3000 failed: port is already allocated
+# Solution: Use a different port
+HOST_PORT=4545 make start
+```
+
+**Container Won't Start**
+```bash
+# Check container status
+make status
+
+# View logs for errors
+make logs
+
+# Clean up and rebuild
+make clean
+make build
+make start
+```
+
+**Permission Issues (Linux)**
+```bash
+# Add user to docker group
+sudo usermod -aG docker $USER
+# Log out and back in, then try again
+```
+
+### Make Command Not Found
+
+**Windows**
+```bash
+# Install via Chocolatey
+choco install make
+
+# Or via Scoop
+scoop install make
+```
+
+**macOS**
+```bash
+# Install Xcode Command Line Tools
+xcode-select --install
+```
 
 ---
 
