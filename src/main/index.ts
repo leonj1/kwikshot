@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, desktopCapturer, systemPreferences } from 'electron';
+import { app, BrowserWindow, ipcMain, desktopCapturer, systemPreferences, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import * as isDev from 'electron-is-dev';
@@ -38,6 +38,30 @@ class KwikShotApp {
   }
 
   private createMainWindow(): void {
+    // Set up session permissions for screen capture
+    session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+      if (permission === 'media') {
+        // Allow media permissions for screen recording
+        callback(true);
+      } else {
+        callback(false);
+      }
+    });
+
+    // Handle display media permissions (Electron 20+)
+    if (session.defaultSession.setDisplayMediaRequestHandler) {
+      session.defaultSession.setDisplayMediaRequestHandler((_request, callback) => {
+        // Allow all display media requests - grant access to primary display
+        desktopCapturer.getSources({ types: ['screen'] }).then(sources => {
+          if (sources.length > 0) {
+            callback({ video: sources[0], audio: 'loopback' });
+          } else {
+            callback({});
+          }
+        });
+      });
+    }
+
     this.mainWindow = new BrowserWindow({
       width: 1200,
       height: 800,
@@ -49,7 +73,6 @@ class KwikShotApp {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        enableRemoteModule: false,
         allowRunningInsecureContent: false,
         preload: path.join(__dirname, '../preload/index.js'),
       },
