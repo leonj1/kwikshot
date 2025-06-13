@@ -64,17 +64,14 @@
 ### 🎥 Recording Interface
 *Intuitive recording controls with real-time preview*
 
-![Recording Interface](https://via.placeholder.com/800x500/1f2937/ffffff?text=Recording+Interface+Screenshot)
 
 ### ✂️ Video Editor
 *Professional timeline editor with drag-and-drop functionality*
 
-![Video Editor](https://via.placeholder.com/800x500/1f2937/ffffff?text=Video+Editor+Screenshot)
 
 ### 🎨 Modern Dark UI
 *Beautiful dark theme with glass morphism effects*
 
-![Dark UI](https://via.placeholder.com/800x500/1f2937/ffffff?text=Modern+Dark+UI+Screenshot)
 
 </div>
 
