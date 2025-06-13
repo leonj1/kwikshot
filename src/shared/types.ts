@@ -70,13 +70,50 @@ export interface ProjectSettings {
 // UI types
 export interface AppSettings {
   theme: 'dark' | 'light';
-  shortcuts: Record<string, string>;
+  shortcuts: ShortcutSettings;
   recording: RecordingSettings;
   editor: {
     autoSave: boolean;
     autoSaveInterval: number;
     previewQuality: 'low' | 'medium' | 'high';
   };
+  folders: FolderSettings;
+  general: GeneralSettings;
+}
+
+// Shortcut settings
+export interface ShortcutSettings {
+  startRecording: string;
+  stopRecording: string;
+  pauseRecording: string;
+  resumeRecording: string;
+  takeScreenshot: string;
+  openSettings: string;
+  newProject: string;
+  saveProject: string;
+  exportVideo: string;
+  toggleFullscreen: string;
+}
+
+// Folder settings
+export interface FolderSettings {
+  recordings: string;
+  projects: string;
+  tracks: string;
+  exports: string;
+  screenshots: string;
+}
+
+// General settings
+export interface GeneralSettings {
+  autoSave: boolean;
+  autoSaveInterval: number; // in minutes
+  showNotifications: boolean;
+  minimizeToTray: boolean;
+  startMinimized: boolean;
+  checkForUpdates: boolean;
+  language: string;
+  defaultFormat: 'mp4' | 'mov' | 'webm';
 }
 
 // Media device types

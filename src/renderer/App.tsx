@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Recorder } from './components/recorder/Recorder';
 import { Editor } from './components/editor/Editor';
+import { Settings } from './components/settings/Settings';
 import { TitleBar } from './components/ui/TitleBar';
 import { Sidebar } from './components/ui/Sidebar';
 
-type AppView = 'recorder' | 'editor';
+type AppView = 'recorder' | 'editor' | 'settings';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>('recorder');
@@ -29,7 +30,7 @@ export const App: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <Sidebar currentView={currentView} onViewChange={setCurrentView} />
-        
+
         {/* Main Content Area */}
         <main className="flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
@@ -46,7 +47,7 @@ export const App: React.FC = () => {
                 <Recorder onSwitchToEditor={() => setCurrentView('editor')} />
               </motion.div>
             )}
-            
+
             {currentView === 'editor' && (
               <motion.div
                 key="editor"
@@ -58,6 +59,20 @@ export const App: React.FC = () => {
                 className="h-full"
               >
                 <Editor onSwitchToRecorder={() => setCurrentView('recorder')} />
+              </motion.div>
+            )}
+
+            {currentView === 'settings' && (
+              <motion.div
+                key="settings"
+                initial="initial"
+                animate="in"
+                exit="out"
+                variants={pageVariants}
+                transition={pageTransition}
+                className="h-full"
+              >
+                <Settings onClose={() => setCurrentView('recorder')} />
               </motion.div>
             )}
           </AnimatePresence>

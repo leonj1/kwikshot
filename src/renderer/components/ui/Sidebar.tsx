@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { Video, Scissors, Settings, Folder } from 'lucide-react';
 
 interface SidebarProps {
-  currentView: 'recorder' | 'editor';
-  onViewChange: (view: 'recorder' | 'editor') => void;
+  currentView: 'recorder' | 'editor' | 'settings';
+  onViewChange: (view: 'recorder' | 'editor' | 'settings') => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) => {
@@ -75,7 +75,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onViewChange }) =
             <Folder size={16} />
             <span className="text-sm">Projects</span>
           </button>
-          <button className="w-full p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors duration-150 flex items-center space-x-2">
+          <button
+            onClick={() => onViewChange('settings')}
+            className={`w-full p-2 rounded-lg transition-colors duration-150 flex items-center space-x-2 ${
+              currentView === 'settings'
+                ? 'text-white bg-blue-600'
+                : 'text-gray-400 hover:text-white hover:bg-gray-700'
+            }`}
+          >
             <Settings size={16} />
             <span className="text-sm">Settings</span>
           </button>
