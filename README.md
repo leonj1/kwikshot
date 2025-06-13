@@ -116,16 +116,45 @@ npm install
 
 **Development**
 ```bash
+# Start with default port (3000)
 npm run dev
+
+# Or use Make for enhanced development experience
+make dev
+
+# Start with custom port
+make dev DEV_PORT=8080
+
+# Start with custom port and host
+make dev DEV_PORT=4000 DEV_HOST=0.0.0.0
+```
+
+**Docker Development**
+```bash
+# Build and run with Docker
+make docker-dev
+
+# Custom port with Docker
+DEV_PORT=8080 make docker-dev
+
+# Or use docker-compose directly
+docker-compose up kwikshot-dev
+
+# Custom port with docker-compose
+DEV_PORT=5000 docker-compose up kwikshot-dev
 ```
 
 **Build for Production**
 ```bash
 # Build for current platform
 npm run build
+# Or with Make
+make build
 
 # Build for all platforms
 npm run dist
+# Or with Make
+make build-all
 
 # Platform-specific builds
 npm run dist:win    # Windows
@@ -253,6 +282,60 @@ AugmentCode empowers developers to build better software faster through AI-assis
 ---
 
 ## 🔧 Configuration
+
+### Development Server Port Configuration
+
+KwikShot allows you to customize the development server port to avoid conflicts with other applications.
+
+#### Environment Variables
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your preferred settings
+DEV_PORT=3000        # Development server port (default: 3000)
+DEV_HOST=localhost   # Development server host (default: localhost)
+NODE_ENV=development # Environment mode
+```
+
+#### Using Make Commands
+```bash
+# Default port (3000)
+make dev
+
+# Custom port
+make dev DEV_PORT=8080
+
+# Custom port and host (accessible from other machines)
+make dev DEV_PORT=4000 DEV_HOST=0.0.0.0
+
+# Interactive port selection
+make dev-custom
+```
+
+#### Using Docker
+```bash
+# Default port (3000)
+docker-compose up kwikshot-dev
+
+# Custom port
+DEV_PORT=8080 docker-compose up kwikshot-dev
+
+# Using environment file
+echo "DEV_PORT=5000" > .env
+docker-compose up kwikshot-dev
+```
+
+#### Direct npm Commands
+```bash
+# Set environment variables inline
+DEV_PORT=8080 npm run dev
+
+# Or export them first
+export DEV_PORT=8080
+export DEV_HOST=0.0.0.0
+npm run dev
+```
 
 ### Recording Settings
 ```json
