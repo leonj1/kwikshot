@@ -21,6 +21,9 @@ const defaultFolders: FolderSettings = {
   tracks: '~/Documents/KwikShot/Tracks',
   exports: '~/Documents/KwikShot/Exports',
   screenshots: '~/Documents/KwikShot/Screenshots',
+  createFoldersAutomatically: true,
+  openFolderAfterSaving: false,
+  organizeByDate: true,
 };
 
 const defaultGeneral: GeneralSettings = {

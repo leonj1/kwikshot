@@ -5,6 +5,7 @@ import { Editor } from './components/editor/Editor';
 import { Settings } from './components/settings/Settings';
 import { TitleBar } from './components/ui/TitleBar';
 import { Sidebar } from './components/ui/Sidebar';
+import { ToastProvider } from './contexts/ToastContext';
 
 type AppView = 'recorder' | 'editor' | 'settings';
 
@@ -22,62 +23,64 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
-      {/* Custom Title Bar */}
-      <TitleBar />
-      
-      {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <Sidebar currentView={currentView} onViewChange={setCurrentView} />
+    <ToastProvider position="top-right">
+      <div className="h-screen flex flex-col bg-gray-900 text-white overflow-hidden">
+        {/* Custom Title Bar */}
+        <TitleBar />
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-hidden">
-          <AnimatePresence mode="wait">
-            {currentView === 'recorder' && (
-              <motion.div
-                key="recorder"
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-                className="h-full"
-              >
-                <Recorder onSwitchToEditor={() => setCurrentView('editor')} />
-              </motion.div>
-            )}
+        {/* Main Content */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar */}
+          <Sidebar currentView={currentView} onViewChange={setCurrentView} />
 
-            {currentView === 'editor' && (
-              <motion.div
-                key="editor"
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-                className="h-full"
-              >
-                <Editor onSwitchToRecorder={() => setCurrentView('recorder')} />
-              </motion.div>
-            )}
+          {/* Main Content Area */}
+          <main className="flex-1 overflow-hidden">
+            <AnimatePresence mode="wait">
+              {currentView === 'recorder' && (
+                <motion.div
+                  key="recorder"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants}
+                  transition={pageTransition}
+                  className="h-full"
+                >
+                  <Recorder onSwitchToEditor={() => setCurrentView('editor')} />
+                </motion.div>
+              )}
 
-            {currentView === 'settings' && (
-              <motion.div
-                key="settings"
-                initial="initial"
-                animate="in"
-                exit="out"
-                variants={pageVariants}
-                transition={pageTransition}
-                className="h-full"
-              >
-                <Settings onClose={() => setCurrentView('recorder')} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </main>
+              {currentView === 'editor' && (
+                <motion.div
+                  key="editor"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants}
+                  transition={pageTransition}
+                  className="h-full"
+                >
+                  <Editor onSwitchToRecorder={() => setCurrentView('recorder')} />
+                </motion.div>
+              )}
+
+              {currentView === 'settings' && (
+                <motion.div
+                  key="settings"
+                  initial="initial"
+                  animate="in"
+                  exit="out"
+                  variants={pageVariants}
+                  transition={pageTransition}
+                  className="h-full"
+                >
+                  <Settings onClose={() => setCurrentView('recorder')} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </main>
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 };

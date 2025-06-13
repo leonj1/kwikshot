@@ -65,9 +65,10 @@ module.exports = (env, argv) => {
     devServer: {
       port: 3000,
       hot: true,
-      static: {
-        directory: path.join(__dirname, 'dist/renderer'),
-      },
+      // Remove static directory to prevent conflicts with webpack-generated content
+      // static: {
+      //   directory: path.join(__dirname, 'dist/renderer'),
+      // },
     },
   };
 };

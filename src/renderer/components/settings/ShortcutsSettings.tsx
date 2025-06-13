@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { ShortcutSettings } from '../../../shared/types';
+import { useAutoSaveToast } from '../../contexts/ToastContext';
 
 interface ShortcutItemProps {
   label: string;
@@ -327,9 +328,49 @@ const ShortcutItem: React.FC<ShortcutItemProps> = ({
 };
 
 export const ShortcutsSettings: React.FC = () => {
-  const { settings, updateShortcuts } = useSettingsStore();
+  const { settings, updateShortcuts, saveSettings } = useSettingsStore();
   const [editingShortcut, setEditingShortcut] = useState<string | null>(null);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [lastSavedSettings, setLastSavedSettings] = useState<string>('');
+  const autoSaveToast = useAutoSaveToast();
+
+  // Auto-save settings when shortcuts actually change (but not on initial load)
+  useEffect(() => {
+    // Skip auto-save on initial load
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      setLastSavedSettings(JSON.stringify(settings.shortcuts));
+      return;
+    }
+
+    // Check if settings actually changed by comparing serialized values
+    const currentSettingsString = JSON.stringify(settings.shortcuts);
+    if (currentSettingsString === lastSavedSettings) {
+      return; // No actual change, skip auto-save
+    }
+
+    const autoSave = async () => {
+      // Only show toast when actually calling saveSettings
+      autoSaveToast.showSaving();
+      try {
+        console.log('Auto-saving shortcut settings...', settings.shortcuts);
+        const success = await saveSettings();
+        if (success) {
+          setLastSavedSettings(currentSettingsString);
+          autoSaveToast.showSuccess();
+        } else {
+          autoSaveToast.showError();
+        }
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+        autoSaveToast.showError();
+      }
+    };
+
+    // Debounce auto-save to avoid excessive saves (no toast during debounce)
+    const timeoutId = setTimeout(autoSave, 500);
+    return () => clearTimeout(timeoutId);
+  }, [settings.shortcuts, saveSettings, isInitialLoad, autoSaveToast, lastSavedSettings]);
 
   const shortcutDefinitions = [
     {
@@ -385,28 +426,26 @@ export const ShortcutsSettings: React.FC = () => {
   };
 
   const handleShortcutUpdate = async (key: keyof ShortcutSettings, newShortcut: string) => {
-    setSaveStatus('saving');
+    autoSaveToast.showSaving();
     try {
       updateShortcuts({ [key]: newShortcut });
-      setSaveStatus('success');
 
-      // Auto-hide success status after 2 seconds
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 2000);
+      // Save to persistent storage immediately
+      const saveSuccess = await saveSettings();
+      if (saveSuccess) {
+        autoSaveToast.showSuccess();
+      } else {
+        autoSaveToast.showError();
+      }
     } catch (error) {
       console.error('Failed to update shortcut:', error);
-      setSaveStatus('error');
-
-      setTimeout(() => {
-        setSaveStatus('idle');
-      }, 3000);
+      autoSaveToast.showError();
     }
   };
 
   const resetToDefaults = async () => {
     if (window.confirm('Reset all shortcuts to defaults? This will overwrite all your custom shortcuts.')) {
-      setSaveStatus('saving');
+      autoSaveToast.showSaving();
       try {
         // Use platform-appropriate defaults
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
@@ -426,18 +465,17 @@ export const ShortcutsSettings: React.FC = () => {
         };
 
         updateShortcuts(defaultShortcuts);
-        setSaveStatus('success');
 
-        setTimeout(() => {
-          setSaveStatus('idle');
-        }, 2000);
+        // Save to persistent storage
+        const saveSuccess = await saveSettings();
+        if (saveSuccess) {
+          autoSaveToast.showSuccess();
+        } else {
+          autoSaveToast.showError();
+        }
       } catch (error) {
         console.error('Failed to reset shortcuts:', error);
-        setSaveStatus('error');
-
-        setTimeout(() => {
-          setSaveStatus('idle');
-        }, 3000);
+        autoSaveToast.showError();
       }
     }
   };
@@ -464,32 +502,7 @@ export const ShortcutsSettings: React.FC = () => {
           </button>
         </div>
 
-        {/* Status Banner */}
-        {saveStatus !== 'idle' && (
-          <div className={`mb-6 p-4 rounded-xl border ${
-            saveStatus === 'success'
-              ? 'bg-green-900/20 border-green-500/30'
-              : saveStatus === 'error'
-              ? 'bg-red-900/20 border-red-500/30'
-              : 'bg-blue-900/20 border-blue-500/30'
-          }`}>
-            <div className="flex items-center space-x-3">
-              {saveStatus === 'saving' && (
-                <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-              )}
-              {saveStatus === 'success' && <Check size={20} className="text-green-400" />}
-              {saveStatus === 'error' && <AlertCircle size={20} className="text-red-400" />}
-              <span className={`font-medium ${
-                saveStatus === 'success' ? 'text-green-300' :
-                saveStatus === 'error' ? 'text-red-300' : 'text-blue-300'
-              }`}>
-                {saveStatus === 'saving' && 'Saving shortcuts...'}
-                {saveStatus === 'success' && 'Shortcuts saved successfully!'}
-                {saveStatus === 'error' && 'Failed to save shortcuts. Please try again.'}
-              </span>
-            </div>
-          </div>
-        )}
+
 
         {/* Info Banner */}
         <div className="mb-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl">
